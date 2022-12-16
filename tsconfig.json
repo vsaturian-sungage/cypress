@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "allowJs": true,
+        "lib": ["es6", "dom"],
+        "types": ["cypress", "node", "@cypress/xpath"],
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+    },
+    "include": ["**/*.ts", "**/*.js"]
+}

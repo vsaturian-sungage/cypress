@@ -1,0 +1,128 @@
+{
+    "simple": [
+        {
+            "id": 1,
+            "desc": "Minimal values",
+            "projectDetails": {
+                "PII": {
+                    "firstName": "Z",
+                    "lastName": "b",
+                    "email": "A@z.aZ",
+                    "street": "1",
+                    "city": "0",
+                    "state": "CA",
+                    "ZIP": "92501",
+                    "Spanish": true
+                },
+                "projectData": {
+                    "solarCost": "30000",
+                    "solarSize": "20",
+                    "solarRebate": {
+                        "amount": "",
+                        "paidToHomeowner": ""
+                    },
+                    "solarMountingLocation": "",
+                    "downPayment": "",
+                    "batteryCost": "10000",
+                    "batterySize": "",
+                    "batteryRebate": {
+                        "amount": "",
+                        "paidToHomeowner": ""
+                    },
+                    "roofCost": ""
+
+                },
+                "loanData": {
+                    "dppType": "None",
+                    "itc": "",
+                    "customDppPortion": "",
+                    "term": "10",
+                    "rate": "2.99"
+                }
+
+            }
+        }
+    ],
+    
+    "onlyPII": [
+        {
+            "id": 1,
+            "desc": "Minimal values",
+            "projectDetails": {
+                "PII": {
+                    "firstName": "a",
+                    "lastName": "z",
+                    "email": "A@z.aZ",
+                    "street": "1",
+                    "city": "0",
+                    "state": "CA",
+                    "ZIP": "92501",
+                    "Spanish": true
+                }
+
+            }
+        },
+        {
+            "id": 2,
+            "desc": "Maximum values",
+            "projectDetails": {
+                "PII": {
+                    "firstName": "Larem ipsum dolor456",
+                    "lastName": "Lbrem ipsum dolor123",
+                    "email": "Lcremi$psumdolorsitassssmetconsectetureffi@citur.ds",
+                    "street": "Lvrem i$psum dolor sit a&met, consectetur efficitur.",
+                    "city": "Lrrem i$psum dolor sit a&met, consectetur efficitur.",
+                    "state": "CA",
+                    "ZIP": "92501",
+                    "Spanish": false
+                } 
+            }   
+        }
+        
+    
+    ],
+
+    "onlyProjectData": [
+        {
+            "id": 1,
+            "desc": "Example",
+            "projectDetails": {
+                "PII": {
+                    "firstName": "a",
+                    "lastName": "z",
+                    "email": "A@z.aZ",
+                    "street": "1",
+                    "city": "0",
+                    "state": "CA",
+                    "ZIP": "92501",
+                    "Spanish": true
+                },
+                "projectData": {
+                    "solarCost": 30000,
+                    "solarSize": 20,
+                    "solarRebate": {
+                        "amount": "500",
+                        "paidToHomeowner": ""
+                    },
+                    "solarMountingLocation": "",
+                    "downPayment": "",
+                    "batteryCost": "20000",
+                    "batterySize": "",
+                    "batteryRebate": {
+                        "amount": "",
+                        "paidToHomeowner": ""
+                    },
+                    "roofCost": "5000"
+
+                }
+
+            }
+            
+        }
+    ],
+
+    "fullProjectData": [
+
+    ]
+    
+}
