@@ -35,24 +35,46 @@ class Utils {
 
 
 
-class CalculationUtils {
+class ProjectUtils {
+    
+    static getDppType (loanData: ProjectDetails["loanData"]) {
+        let dppType = loanData.dppType ? loanData.dppType : [projectDefault.dppType, projectDefault.dppType_api];
+        return String(dppType);
+    } 
 
-    static calculateLoanAmount (projectData: ProjectDetails["projectData"]) {
-        let solarCost = projectData.solarCost || 0;
-        let batteryCost = projectData.batteryCost || 0;
-        let roofCost = projectData.roofCost || 0;
-        let downPayment = projectData.downPayment || 0;
-        let solarRebate = (projectData.solarRebate && !projectData.solarRebate.paidToHomeowner) ? projectData.solarRebate.amount : 0;
-        let batteryRebate = (projectData.batteryRebate && !projectData.batteryRebate.paidToHomeowner) ? projectData.batteryRebate.amount : 0;
+    static getLoanType (projectData: ProjectDetails["projectData"]) {
+        let loanType = projectData.solarCost > 0 ? "Solar" : "Battery";
+        return loanType;
+    }
+
+}
+
+
+
+class Calculate extends ProjectUtils {
+
+    static loanAmount (projectDetails: ProjectDetails): number {
+        let project = projectDetails.projectData;
+
+        // let solarCost = project.solarCost || 0;
+        // let batteryCost = project.batteryCost || 0;
+        // let roofCost = project.roofCost || 0;
+        let downPayment = project.downPayment || 0;
+        // let solarRebate = (project.solarRebate && !project.solarRebate.paidToHomeowner) ? project.solarRebate.amount : 0;
+        // let batteryRebate = (project.batteryRebate && !project.batteryRebate.paidToHomeowner) ? project.batteryRebate.amount : 0;
+
+        let solarAmount = Calculate.costSolar(projectDetails, false);
+        let RBAmount = Calculate.costRB(projectDetails);
         
-        let loanAmount = solarCost + batteryCost + roofCost - downPayment - solarRebate - batteryRebate;
+        let loanAmount = solarAmount + RBAmount - downPayment;
+        // let loanAmount = solarCost + batteryCost + roofCost - downPayment - solarRebate - batteryRebate;
         Logger.log(`Calculated loan amount. Result is ${loanAmount}`)
         return loanAmount;
     }
 
     //Doesn't include logic for HO rebates, IL and HI specific calculations
-    static calculateDppPortion (projectDetails: ProjectDetails) { 
-        let dppType = ProjectUtils.getDppType(projectDetails.loanData)
+    static dppPortion (projectDetails: ProjectDetails): number { 
+        let dppType = this.getDppType(projectDetails.loanData)
         let dppPortion: number = 0;
         let itc = projectDetails.loanData?.itc ? projectDetails.loanData?.itc : projectDefault.itc;
         let customDppPortion = projectDetails.loanData.customDppPortion ? projectDetails.loanData.customDppPortion : 0;
@@ -66,20 +88,35 @@ class CalculationUtils {
         });
 
         if (dppType.includes("None") || dppType === "0") {
-            Logger.log(`Calculated expected DPP portion as ${dppPortion}.`)
+            Logger.log(`Calculated expected DPP portion: ${dppPortion}.`)
             return dppPortion;
         } else if (customDppPortion) {
-            Logger.log(`Calculated expected DPP portion as ${customDppPortion}.`)
+            Logger.log(`Calculated expected DPP portion: ${customDppPortion}.`)
             return Number(customDppPortion);
         } else {
-            let loanAmount = this.calculateLoanAmount(projectDetails.projectData);
+            let loanAmount = Calculate.loanAmount(projectDetails);
             dppPortion = loanAmount * itc/100 + stateDppPortion;
-            Logger.log(`Calculated expected DPP portion as ${dppPortion}.`)
+            Logger.log(`Calculated expected DPP portion: ${dppPortion}.`)
             return dppPortion;
         }
     }
 
-    static calculateCostRB (projectDetails: ProjectDetails) {
+    //Only Solar part of the loan
+    static costSolar (projectDetails: ProjectDetails, includeDownPayment = true): number {
+        let project = projectDetails.projectData;
+
+        let solarCost = project.solarCost || 0;
+        let solarRebate = (project.solarRebate && !project.solarRebate.paidToHomeowner) ? project.solarRebate.amount : 0;
+        let downPayment = (project.downPayment && includeDownPayment) ? project.downPayment : 0;
+
+        let solarAmount = solarCost - solarRebate - downPayment;
+
+        Logger.log(`Calculated Solar amount: ${solarAmount}`)
+        return solarAmount;
+    }
+
+    //Only Roof + Battery part of the loan
+    static costRB (projectDetails: ProjectDetails): number {
         let project = projectDetails.projectData;
 
         let batteryCost = project?.batteryCost || 0;
@@ -89,35 +126,49 @@ class CalculationUtils {
 
         let costRB = batteryLoanAmount + roofCost;
         
-        Logger.log(`Calcilated cost of R&B: ${costRB}.`)
+        Logger.log(`Calculated amount of R&B: ${costRB}.`)
         return costRB;
     }
-}
 
+    static grossCostPerSize (projectDetails: ProjectDetails): number {
+        let project = projectDetails.projectData;
+        if (!project.solarCost) return 0;
+        if (project.solarCost && !project.solarSize) throw "solarSize is required in testing data";
 
+        let solarAmount = Calculate.costSolar(projectDetails);
+        let solarSize = project.solarSize;
 
-class ProjectUtils {
-    
-    static getDppType (loanData: ProjectDetails["loanData"]) {
-        let dppType = loanData.dppType ? loanData.dppType : [projectDefault.dppType, projectDefault.dppType_api];
-        return String(dppType);
-    } 
-
-    static getLoanType (projectData: ProjectDetails["projectData"]) {
-        let loanType = projectData.solarCost > 0 ? "Solar" : "Battery";
-        return loanType;
-    }
-
-    static isHavingBattery (projectData: ProjectDetails["projectData"]) {
-        return (projectData.solarCost > 0 && projectData.batteryCost) > 0 ? true : false;
-    }
-
-    static isHavingRoof (projectData: ProjectDetails["projectData"]) {
-        return (projectData.solarCost > 0 && projectData.roofCost > 0) ? true : false;;
+        let grossCostPerSize = solarAmount/solarSize;
+        
+        Logger.log(`Calculated gross cost per 1 kW: ${grossCostPerSize}.`)
+        return grossCostPerSize;
     }
 
 }
 
 
 
-export { Utils, CalculationUtils, ProjectUtils };
+class Is extends ProjectUtils {
+
+    static havingBattery (projectData: ProjectDetails["projectData"]): boolean {
+        return (projectData.solarCost > 0 && projectData.batteryCost) > 0;
+    }
+
+    static havingRoof (projectData: ProjectDetails["projectData"]): boolean {
+        return (projectData.solarCost > 0 && projectData.roofCost > 0);
+    }
+
+    static batteryOnly (projectData: ProjectDetails["projectData"]): boolean {
+        return (!projectData.solarCost && projectData.batteryCost > 0);
+    }
+
+    static roofAvailable (projectData: ProjectDetails["projectData"]): boolean {
+        let eligibleForRoofMountingLocation = projectDefault.solarMountingLocation[0];
+        return eligibleForRoofMountingLocation.includes(projectData.solarMountingLocation);
+    }
+
+}
+
+
+
+export { Utils, Calculate, ProjectUtils, Is };

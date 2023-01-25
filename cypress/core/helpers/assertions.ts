@@ -5,37 +5,53 @@ import Logger from "../logger/logger";
 class Assert {
 
     static equalValues (elementLocator: string, expectedValue: any, invoke?: string) {
-        DOMHelper.getElementsText(elementLocator, invoke).then(elementValue => {
+        DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
             if (typeof expectedValue === "number") {
-                elementValue = Validator.cleanseVariable(elementValue, true);
-                Logger.logWithResults(expectedValue, elementValue, `Expected value is equal to actual value`)
-                expect(Number(elementValue)).to.eql(Number(expectedValue));
+                actualValue = Validator.cleanseVariable(actualValue, true);
+                Logger.logWithResults(expectedValue, actualValue, `Expected value is equal to actual value`);
+                expect(Number(actualValue)).to.eql(Number(expectedValue));
             } else {
-                elementValue = Validator.cleanseVariable(elementValue);
-                Logger.logWithResults(expectedValue, elementValue, `Expected value is equal to actual value`)
-                expect(elementValue).to.eql(expectedValue);
+                actualValue = Validator.cleanseVariable(actualValue);
+                Logger.logWithResults(expectedValue, actualValue, `Expected value is equal to actual value`);
+                expect(actualValue).to.eql(expectedValue);
             }
         })
     }
 
     static includeValue (elementLocator: string, expectedValue: any, invoke?: string) {
-        DOMHelper.getElementsText(elementLocator, invoke).then(elementValue => {
-            Logger.logWithResults(expectedValue, elementValue, `Expected value is included in actual value`)
-            elementValue = Validator.cleanseVariable(elementValue);
+        DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
+            Logger.logWithResults(expectedValue, actualValue, `Expected value is included in actual value`);
+            actualValue = Validator.cleanseVariable(actualValue);
             if (typeof expectedValue === "number") {
-                expect(Number(elementValue)).to.include(Number(expectedValue));
+                expect(Number(actualValue)).to.include(Number(expectedValue));
             } else {
-                expect(elementValue).to.include(expectedValue);
+                expect(actualValue).to.include(expectedValue);
             }
             
         })
     }
 
+    //Todo add logger showing expectedArray
+    static includeArray (elementLocator: string, expectedArray: Array<string>, invoke?: string) {
+        DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
+            Logger.logWithResults(expectedArray, actualValue, `Expected array of elements is included in the actual value`)
+            expectedArray.forEach((expectedValue, index) => {
+                console.group('includeArray expanded method log');
+                console.log(`Actual Value: ${actualValue}`);
+                console.log(`Expected Value: ${expectedValue}.`)
+                console.log(`Result: ${actualValue.includes(expectedValue)}`)
+                console.log(`Index of the value: ${expectedArray[index]}`)
+                console.groupEnd();
+                expect(actualValue).to.include(expectedValue);
+            });
+        })
+    }
+
     static greaterThanZero (elementLocator: string, invoke?: string) {
-        DOMHelper.getElementsText(elementLocator, invoke).then(elementValue => {
-            Logger.logWithResults("Greater than 0", elementValue, "Actual value is greater than zero")
-            elementValue = Validator.cleanseVariable(elementValue, true);
-            expect(Number(elementValue)).to.be.above(0); 
+        DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
+            Logger.logWithResults("Greater than 0", actualValue, "Actual value is greater than zero");
+            actualValue = Validator.cleanseVariable(actualValue, true);
+            expect(Number(actualValue)).to.be.above(0); 
         })
     }
 

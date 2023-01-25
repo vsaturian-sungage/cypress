@@ -1,3 +1,4 @@
+import { StringMatcher } from "cypress/types/net-stubbing"
 import CoreUtils from "../helpers/utility"
 
 
@@ -60,7 +61,6 @@ class Logger {
             }
 
         })
-        
     }
 
 

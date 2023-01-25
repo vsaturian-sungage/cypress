@@ -1,15 +1,17 @@
 export const projectDefault = {
     dppType: "One Tax Season",
     dppType_api: "June",
-    minimum_loanAmount: 7500,
-    maximum_loanAmount: 200000,
-    maximum_loanAmount_batteryOnly: 50000,
+    min_loanAmount: 7500,
+    max_loanAmount: 200000,
+    max_loanAmount_batteryOnly: 50000,
     itc: 30,
-    minimum_solarSize: 1,
-    maximum_solarSilze: 100,
-    minimum_batterySize: 1.1,
-    maximum_batterySilze: 75,
-
+    min_solarSize: 1,
+    max_solarSize: 100,
+    min_batterySize: 1.1,
+    max_batterySize: 75,
+    min_grossCostPerSize: 1,
+    max_grossCostPerSize: 15,
+    solarMountingLocation: ["Roof of Residence", "Ground Mount", "Roof of a separate structure on the property"]
 }
 
 export const stateDppPortionMap = new Map([

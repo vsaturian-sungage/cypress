@@ -1,5 +1,7 @@
 export type dppType = "None" | 18 | "18" | "One Tax Season";
 
+export type solarMountingLocation = "Roof of Residence" | "Ground Mount" | "Roof of a separate structure on the property";
+
 export type PII = {
     firstName: string,
     lastName: string,

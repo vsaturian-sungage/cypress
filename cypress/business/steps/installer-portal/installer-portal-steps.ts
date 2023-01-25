@@ -74,7 +74,6 @@ class InstallerPortalSteps extends InstallerPortalUtils {
         DOMHelper.getElementById("next", "button").click();
     }
 
-
 }
 
 
@@ -106,7 +105,7 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
     static fillProjectData (projectData: ProjectDetails["projectData"]) {
 
         let loanType: "Solar" | "Battery";
-        let fieldsMap
+        let fieldsMap: Map<string, number>;
         projectData.solarMountingLocation = projectData.solarMountingLocation || "Roof of Residence";
 
         if (projectData && projectData.solarCost) {
@@ -130,7 +129,7 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
             if (projectData.batteryCost > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addBattery);
                 fieldsMap.set("Battery Cost", Number(projectData.batteryCost));
-                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) || projectDefault.minimum_batterySize);
+                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) || projectDefault.min_batterySize);
                 fieldsMap.set("Battery Rebate", Number(projectData.batteryRebate?.amount) || 0);
             }
 
@@ -150,7 +149,7 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
             ]);
         }
 
-        fieldsMap.forEach(DOMHelper.typeInto.followingSibling)
+        fieldsMap.forEach(DOMHelper.typeInto.followingSibling);
         
     }
 

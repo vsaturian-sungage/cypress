@@ -4,9 +4,10 @@ import DOMHelper from "../../../core/helpers/element-actions";
 import Assert from "../../../core/helpers/assertions";
 import xpathLocator from "../../../data/locators/xpath-locators";
 import { ProjectDetails } from '../../types/project-details-types';
-import { CalculationUtils, ProjectUtils } from "../../Utils/utils";
+import { Calculate, ProjectUtils } from "../../Utils/utils";
 import { projectDefault } from "../../../data/constants/projectDefault";
 import TestRunner from "../test-runner/test-runner";
+import { Is } from "../../Utils/utils";
 
 
 class ProjectBuilderChecks {
@@ -44,11 +45,11 @@ class ProjectBuilderChecks {
             let havingBattery: boolean;
             let havingRoof: boolean;
             let actualProjectData = xpathLocator.installerPortal.projectOverview.projectDetails;
-            let expectedBatterySize = projectData.batteryCost ? projectData.batterySize || projectDefault.minimum_batterySize : 0
+            let expectedBatterySize = projectData.batteryCost ? projectData.batterySize || projectDefault.min_batterySize : 0
     
             loanType = ProjectUtils.getLoanType(projectData); 
-            havingBattery = ProjectUtils.isHavingBattery(projectData);
-            havingRoof = ProjectUtils.isHavingRoof(projectData);
+            havingBattery = Is.havingBattery(projectData);
+            havingRoof = Is.havingRoof(projectData);
             
             if (loanType === "Solar") {
     
@@ -88,8 +89,8 @@ class ProjectBuilderChecks {
 
         checkLoanData (projectDetails: ProjectDetails) {
             let actulLoanData = xpathLocator.installerPortal.projectOverview.financingDetails;
-            let expectedLoanAmount = CalculationUtils.calculateLoanAmount(projectDetails.projectData);
-            let expectedDppPortion = CalculationUtils.calculateDppPortion(projectDetails);
+            let expectedLoanAmount = Calculate.loanAmount(projectDetails);
+            let expectedDppPortion = Calculate.dppPortion(projectDetails);
             let expectedDppType = ProjectUtils.getDppType(projectDetails.loanData);
             let actualTerm = xpathLocator.installerPortal.projectOverview.financingDetails.term
     
@@ -113,38 +114,47 @@ class ProjectBuilderChecks {
 
     static Negative = {
 
-        //Cover following validations
-        ////loanAmount
-        ////solarSize
-        ////batterySize
-        ////GrossCost per 1 kW (1 to 15$)
-        ////50% for R&B
-        ////Roof availability
-        checkErrorPopUp (ProjectDetails: ProjectDetails) {
-            let issue = new Set<string>();
-            let project = ProjectDetails.projectData;
+        checkProjectDataErrors (projectDetails: ProjectDetails) {
+            let project = projectDetails.projectData;
+            let message: Array<string> = [];
 
-            let loanAmount = CalculationUtils.calculateLoanAmount(ProjectDetails.projectData);
+            let loanAmount = Calculate.loanAmount(projectDetails);
+            let solarAmount = Calculate.costSolar(projectDetails);
+            let RBAmount = Calculate.costRB(projectDetails);
+            let grossCost = Calculate.grossCostPerSize(projectDetails);
 
-            if (loanAmount > projectDefault.maximum_loanAmount) issue.add("loanAmount exceeds the maximum");
-            if (loanAmount < projectDefault.minimum_loanAmount) issue.add("loanAmount is under the minimum");
-            if (project.solarSize > projectDefault.maximum_solarSilze || project.solarSize < projectDefault.minimum_solarSize) issue.add("solarSize is out of range");
-            if (project.batterySize > projectDefault.maximum_batterySilze || project.batterySize < projectDefault.minimum_batterySize) issue.add("batterySize is out of range");
+            if (loanAmount > projectDefault.max_loanAmount && !Is.batteryOnly(project)){
+                message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount.toLocaleString("en-US")}`);
+            } else if (loanAmount > projectDefault.max_loanAmount && !Is.batteryOnly(project)) {
+                message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount_batteryOnly.toLocaleString("en-US")}`);
+            }
+            if (loanAmount < projectDefault.min_loanAmount) {
+                message.push(`Your loan ($${loanAmount.toLocaleString("en-US")}) is under the minimum size`);
+            } 
+            if (project.solarSize > projectDefault.max_solarSize || project.solarSize < projectDefault.min_solarSize) {
+                message.push(`System Size is in kW and must be between 0 and ${projectDefault.max_solarSize}`);
+            } 
+            if (project.batterySize > projectDefault.max_batterySize || project.batterySize < projectDefault.min_batterySize) {
+                message.push(`Battery capacity is in kWh and must be between 1 and ${projectDefault.max_batterySize}`);
+            }
+            if (solarAmount < RBAmount) {
+                message.push("The sum of battery cost and roof cost cannot exceed 50%");
+            }
+            if (grossCost < projectDefault.min_grossCostPerSize || grossCost > projectDefault.max_grossCostPerSize) {
+                message.push(`Gross cost must be between $${projectDefault.min_grossCostPerSize} and $${projectDefault.max_grossCostPerSize} per watt`);
+            }
+            if (!Is.roofAvailable(projectDetails["projectData"])) {
+                message.push("We can not finance a roof if the system is not located on the roof of the residence");
+            }
 
-            let message: string;
-            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage
-            Assert.includeValue(errorMessage, message)
+            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage;
+            Assert.includeArray(errorMessage, message);
         }
 
     }
 
 }
 
-class TestUtils {
-
-    
-
-}
 
 
 export { ProjectBuilderChecks }
