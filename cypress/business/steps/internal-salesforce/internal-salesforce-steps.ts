@@ -1,4 +1,4 @@
-import xpathLocator from '../../../data/locators/element-locators';
+import xpathLocator from '../../../data/locators/xpath-locators';
 import DOMHelper from '../../../core/helpers/element-actions';
 
 class InternalSalesforceSteps {

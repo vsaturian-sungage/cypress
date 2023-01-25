@@ -1,4 +1,5 @@
 import DOMHelper from '../core/helpers/element-actions'
+import Logger from '../core/logger/logger'
 
 
 
@@ -9,10 +10,11 @@ describe('', () => {
     
   })
   it ('asd',  () => {
-    
-    cy.visit('https://google.com')
-    // Logger.currentURL()
-    DOMHelper.clickOn('//nonexistentelement')
+    try {
+      throw "it's error"
+    } finally {
+      Logger.log("error avoided")
+    }
 
   })
 

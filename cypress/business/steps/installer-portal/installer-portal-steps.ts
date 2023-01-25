@@ -1,5 +1,7 @@
 import DOMHelper from '../../../core/helpers/element-actions';
-import xpathLocator from '../../../data/locators/element-locators';
+import { projectDefault } from '../../../data/constants/projectDefault';
+import xpathLocator from '../../../data/locators/xpath-locators';
+import { ProjectDetails } from '../../types/project-details-types';
 
 
 
@@ -27,7 +29,7 @@ class InstallerPortalUtils {
         DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppTypeValue(dppType));
     }
 
-    static pickDppPortion (itc = 30, customValue: string) { //Doesn't work. States that values of the dropdown has display:none. Force clicking doesn't do anything
+    static pickDppPortion (itc = 30, customValue: string | number) { //Doesn't work. States that values of the dropdown has display:none. Force clicking doesn't do anything
         if (!customValue) {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdown);
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdownValue(itc));
@@ -79,7 +81,7 @@ class InstallerPortalSteps extends InstallerPortalUtils {
 
 class ProjectBuilderSteps extends InstallerPortalSteps {
     
-    static fillPersonalInfo (PII) {
+    static fillPersonalInfo (PII: ProjectDetails["PII"]) {
 
         let fieldsPIIMap = new Map ([
             ["First Name", PII.firstName],
@@ -101,9 +103,9 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
 
     }
 
-    static fillProjectData (projectData) {
+    static fillProjectData (projectData: ProjectDetails["projectData"]) {
 
-        let loanType: string
+        let loanType: "Solar" | "Battery";
         let fieldsMap
         projectData.solarMountingLocation = projectData.solarMountingLocation || "Roof of Residence";
 
@@ -117,44 +119,42 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
 
         if (loanType = "Solar") {
             fieldsMap = new Map ([
-                ["Solar Cost", projectData.solarCost || 0],
-                ["System size", projectData.solarSize || 0],
-                ["Down Payment", projectData.downPayment || 0],
-                ["Rebate Amount", projectData.solarRebate.amount || 0]
+                ["Solar Cost", Number(projectData.solarCost) || 0],
+                ["System size", Number(projectData.solarSize) || 0],
+                ["Down Payment", Number(projectData.downPayment) || 0],
+                ["Rebate Amount", Number(projectData.solarRebate?.amount) || 0]
             ]);
 
             this.pickSolarMountingLocation(projectData.solarMountingLocation);
 
             if (projectData.batteryCost > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addBattery);
-                fieldsMap.set("Battery Cost", projectData.batteryCost);
-                fieldsMap.set("Battery Capacity", projectData.batterySize || 1.1);
-                fieldsMap.set("Battery Rebate", projectData.batteryRebate.amount || 0);
+                fieldsMap.set("Battery Cost", Number(projectData.batteryCost));
+                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) || projectDefault.minimum_batterySize);
+                fieldsMap.set("Battery Rebate", Number(projectData.batteryRebate?.amount) || 0);
             }
 
             if (projectData.roofCost > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addRoof);
-                fieldsMap.set("Roof Cost", projectData.roofCost);
+                fieldsMap.set("Roof Cost", Number(projectData.roofCost));
             }
             
         } else if (loanType = "Battery") {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.batteryLoanType);
 
             fieldsMap = new Map ([
-                ["Battery Cost", projectData.solarCost || 0],
-                ["Battery Capacity", projectData.solarSize || 0],
-                ["Down Payment", projectData.downPayment || 0],
-                ["Battery Rebate Amount", projectData.solarRebate.amount || 0]
+                ["Battery Cost", Number(projectData.solarCost) || 0],
+                ["Battery Capacity", Number(projectData.solarSize) || 0],
+                ["Down Payment", Number(projectData.downPayment) || 0],
+                ["Battery Rebate Amount", Number(projectData.solarRebate.amount) || 0]
             ]);
-        } else {
-            throw "Invalid loanType is set.";
         }
 
         fieldsMap.forEach(DOMHelper.typeInto.followingSibling)
         
     }
 
-    static fillLoanData (loanData) {
+    static fillLoanData (loanData: ProjectDetails["loanData"]) {
         
         if (loanData.rate) {
             this.pickRate(loanData.rate, loanData.term);
@@ -165,7 +165,7 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
         if (loanData.itc || loanData.customDppPortion) {
             this.pickDppPortion(loanData.itc, loanData.customDppPortion);
         }
-        DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.term(loanData.term));
+        DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.term(loanData.term || 5));
     }
 
     

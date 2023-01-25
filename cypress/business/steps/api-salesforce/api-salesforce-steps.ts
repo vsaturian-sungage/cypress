@@ -1,4 +1,4 @@
-import Utils from "../../Utils/utils";
+import {Utils} from "../../Utils/utils";
 import * as CustomError from "../../../core/logger/error-handler"
 
 class apiSalesforce {
@@ -37,7 +37,7 @@ class apiSalesforce {
                         : (attributes && attributes.oppId) ? attributes.oppId : undefined;
 
                 if (oppId === undefined) {
-                    throw new CustomError.VariableError(oppId, "Verify that oppId was correctly read from the file or corretly passed to the method.")
+                    throw new CustomError.VariableError(oppId, `oppId is ${oppId}. Verify that oppId was correctly read from the file or corretly passed to the method.`)
                 }
 
                 console.log(`Initiating DELETE request with auth key.`)

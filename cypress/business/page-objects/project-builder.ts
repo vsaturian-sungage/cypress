@@ -1,36 +1,31 @@
 import { InstallerPortalSteps, ProjectBuilderSteps } from '../steps/installer-portal/installer-portal-steps';
-import Utils from '../Utils/utils';
-import xpathLocator from '../../data/locators/element-locators';
+import { Utils } from '../Utils/utils';
+import xpathLocator from '../../data/locators/xpath-locators';
+import { ProjectDetails } from '../types/project-details-types';
 
 
 class ProjectBuilder {
     
-    static createProject (projectDetails, saveOppId = true) {
-        try {
+    static createProject (projectDetails: ProjectDetails, saveOppId = true) {
 
-            InstallerPortalSteps.goTo("Project Builder");
-            ProjectBuilderSteps.fillPersonalInfo(projectDetails.PII);
+        InstallerPortalSteps.goTo("Project Builder");
+        ProjectBuilderSteps.fillPersonalInfo(projectDetails.PII);
 
-            if (projectDetails.projectData) {
-                ProjectBuilderSteps.clickNext();
-                ProjectBuilderSteps.fillProjectData(projectDetails.projectData);
-            }
-            if (projectDetails.projectData && projectDetails.loanData) {
-                ProjectBuilderSteps.clickNext();
-                ProjectBuilderSteps.fillLoanData(projectDetails.loanData);
-            }
-
-            ProjectBuilderSteps.clickDone();
-
-        } catch (error) {
-            
-        } finally {
-
-            if (saveOppId === true) {
-                ProjectBuilderUtils.saveOppId();
-            }
-
+        if (projectDetails.projectData) {
+            ProjectBuilderSteps.clickNext();
+            ProjectBuilderSteps.fillProjectData(projectDetails.projectData);
         }
+        if (projectDetails.projectData && projectDetails.loanData) {
+            ProjectBuilderSteps.clickNext();
+            ProjectBuilderSteps.fillLoanData(projectDetails.loanData);
+        }
+
+        ProjectBuilderSteps.clickDone();
+
+        if (saveOppId === true) {
+            ProjectBuilderUtils.saveOppId();
+        }
+
     }
 
     static editProject () {

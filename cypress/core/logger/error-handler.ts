@@ -1,8 +1,3 @@
-import Logger from './logger';
-import StateUtils from '../helpers/state-utils';
-
-
-
 class ErrorName extends Error {
     constructor(message: string) {
       super(message);
@@ -11,11 +6,10 @@ class ErrorName extends Error {
 }
 
 class ElementNotFoundError extends ErrorName {
-    constructor (locator: string) {
+    constructor (locator: string, additionalError?: any) {
         let message = `Element not found. Check that locator is correct and element is actually exists on the page or correct page is visited. 
-            \nLocator: ${locator}
-            \nURL: ${StateUtils.getCurrentURL}`
-        super(message)
+            \nLocator: ${locator}`
+        super(message + additionalError ? `\n\nError:\n${additionalError}`: '')
     }
 }
 
@@ -34,4 +28,10 @@ class VariableError extends ErrorName {
     }
 }
 
-export { ElementNotFoundError, LocatorError, VariableError };
+class CleanseVariableError extends ErrorName {
+    constructor (variable: any, type: any) {
+        super(`Variable is not cleansed properly. \n\nVariable type if converted to Number: ${type}.\nVariable value: ${variable}.`)
+    }
+}
+
+export { ElementNotFoundError, LocatorError, VariableError, CleanseVariableError };

@@ -1,21 +1,88 @@
+import CoreUtils from "../helpers/utility"
+
+
+const LogType = {
+    INFO: '🥦 INFO',
+    WARNING: '🍋 WARN',
+    ERROR: '🍅 ERROR'
+}
+
 class Logger {
 
-    static logWithURL (message: string) {
+    //Logs
+
+    static log (message: string, name?: string) {
+        CoreUtils.synchronizeWithCypress(() => {
+            Cypress.log({
+                displayName: `${LogType.INFO}: ${name ? name : 'Log message'}`,
+                message: message,
+                consoleProps: () => {
+                    return {
+                        Message: message
+                    }
+                }
+            })
+        }) 
+    }
+
+    static logWithURL (message?: string) {
         cy.url().then((url) => {
-            cy.log(`URL: ${url}; message: ${message}`)
-            console.log(`URL: ${url}; message: ${message}`)
+            Cypress.log({
+                displayName: `${LogType.INFO}: Current URL`,
+                message: `URL: ${url}; ${message ? `message: ${message}` : ''}`,
+                consoleProps: () => {
+                    return {
+                        URL: url,
+                        Message: message || undefined
+                    }
+                }
+            })
         })
     }
 
-    static logWithArguments (expected: any, actual: any, message?: string) {
+    static logWithResults (expected: any, actual: any, message?: string) {
         if (actual == null) {
             actual = "[Error: Value for the log is set incorrectly]";
         } else if (typeof actual == "object" && actual != null) {
             actual = JSON.stringify(actual);
         }
-        cy.log(`${message ? message + '.' : ''} **Expected Value**: ${expected}; **Actual Value**: ${actual}`)
-        console.log(`${message ? message + '.' : ''} \n**Expected Value**: ${expected}; **Actual Value**: ${actual}`)
+
+        Cypress.log({
+
+            displayName: `${LogType.INFO}: Results Comparison`,
+            message: `${message ? message + '.' : ''} **Expected Value**: ${expected}; **Actual Value**: ${actual}`,
+            consoleProps: () => {
+                return {
+                    ExpectedResult: expected,
+                    ActualResult: actual,
+                    Message: message || undefined
+                }
+            }
+
+        })
+        
     }
+
+
+
+    //Warnings
+    static warn (message: any) {
+        cy.then(() => {
+            Cypress.log({
+                displayName: `${LogType.WARNING}: Warn message`,
+                message: message,
+                consoleProps: () => {
+                    return {
+                        Message: message
+                    }
+                }
+            })
+        })
+    } 
+
+
+
+    //Errors
 
 }
 

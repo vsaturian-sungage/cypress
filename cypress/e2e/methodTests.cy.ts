@@ -1,10 +1,10 @@
 import { ProjectBuilder, ProjectBuilderUtils } from '../business/page-objects/project-builder'
 import apiSalesforce from '../business/steps/api-salesforce/api-salesforce-steps'
-import Utils from '../business/Utils/utils'
+import {Utils} from '../business/Utils/utils'
 //import testData from '../data/testing-data/project-builder/positive-test-cases.json'
-import { ProjectBuilderChecks } from '../business/steps/installer-portal/installer-portal-checks'
+import { ProjectBuilderChecks } from '../business/tests/installer-portal/installer-portal-checks'
 import { InstallerPortalSteps } from '../business/steps/installer-portal/installer-portal-steps'
-import xpathLocator from '../data/locators/element-locators'
+import xpathLocator from '../data/locators/xpath-locators'
 
 let testData = {
   solarCost: 145000,

@@ -1,5 +1,5 @@
 import * as CustomError from '../../core/logger/error-handler'
-import Validator from '../logger/validator';
+import Validator from './validator';
 
 
 
@@ -54,11 +54,6 @@ class DOMHelper { //DOMHelper
             cy.xpath(`(//input[attribute::*[contains(., "${inputElement}")]])[1]`).type(`${value}`, {delay: typeDelay});
         }
 
-    }
-
-    //TODO - Needs to be adjusted -> almsot the whole value but the last char should be typed with invoke(), then last char with type(). Otherwise the value disappeares
-    static pasteValueInto_inputHavingAttribute (value: Input, inputElement: Node) { 
-        cy.xpath(`//input[contains(@*, "${inputElement}")]`).invoke('val', value);
     }
 }
 
