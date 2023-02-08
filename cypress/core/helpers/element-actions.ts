@@ -43,15 +43,15 @@ class DOMHelper { //DOMHelper
 
         fieldByLocator (elementLocator: Locator, value: Input) {
             Validator.elementLocator(elementLocator);
-            cy.xpath(`(${elementLocator})[1]`).type(`${value}`, {delay: typeDelay});
+            cy.xpath(`(${elementLocator})[1]`).type(`{backspace}${value}`, {delay: typeDelay});
         },
 
         followingSibling (value: Input, inputElement: Node) {
-            cy.xpath(`(//div[contains(*, "${inputElement}")]/following-sibling::div//input)[1]`).type(`${value}`, {delay: typeDelay});
+            cy.xpath(`(//div[contains(*, "${inputElement}")]/following-sibling::div//input)[1]`).type(`{backspace}${value}`, {delay: typeDelay});
         },
 
         inputHavingAttribute (value: Input, inputElement: Node) {
-            cy.xpath(`(//input[attribute::*[contains(., "${inputElement}")]])[1]`).type(`${value}`, {delay: typeDelay});
+            cy.xpath(`(//input[attribute::*[contains(., "${inputElement}")]])[1]`).type(`{backspace}${value}`, {delay: typeDelay});
         }
 
     }

@@ -17,7 +17,7 @@ const xpathLocator = {
             },
             addBattery: '//button[contains(span, "Add Battery")]',
             addRoof: '//button[contains(span, "Add Roof")]',
-            batteryLoanType: '//span[contains(text(), "Battery")]',
+            batteryLoanType: '//span[contains(text(), "Battery Only")]',
             term (loanTerm = 5) {
                 return `//*[@id="${loanTerm}trmTopOutput"]//input`;
             },
@@ -38,6 +38,12 @@ const xpathLocator = {
             customDppPortion: '//*[@id="projectbuilder_Custom_Tax_Loan_Amount__c"]',
 
             errorMessage: `//div[contains(text(), "Error")]/following-sibling::div`,
+            requiredFieldError (elementName) {
+                if (typeof elementName == "string") {
+                    elementName = elementName.toLocaleLowerCase()
+                }
+                return `//input[contains(translate(@id, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), "projectbuilder_${elementName}")]/ancestor::span/following-sibling::div[contains(text(), "is required")]`;
+            } 
         },
         projectOverview: {
             email: '//p[contains(text(), "Email")]//a[text()]',

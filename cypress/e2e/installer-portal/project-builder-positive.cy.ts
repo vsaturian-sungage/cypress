@@ -2,12 +2,12 @@ import { InstallerPortalSteps } from '../../business/steps/installer-portal/inst
 import { ProjectBuilder } from '../../business/page-objects/project-builder'
 import apiSalesforce from '../../business/steps/api-salesforce/api-salesforce-steps'
 import TestRunner from '../../business/tests/test-runner/test-runner'
-import testCases from '../../data/testing-data/project-builder/positive-test-cases.json'
+import testCases from '../../data/testing-data/project-builder/positive-test-cases'
 
 
 
 testCases.simple.forEach(test => {
-    describe(`Create a project with Personal Info (PII) only - ${test.desc}. ID: ${test.id}`, () => {
+    describe(`Create a project with Personal Info (PII) only - ${test.desc}. \nID: ${test.id}`, () => {
 
         before(() => {
 
@@ -18,17 +18,17 @@ testCases.simple.forEach(test => {
         it('Create a project and verify that data are correct', () => {
 
             ProjectBuilder.createProject(test.projectDetails);
-            TestRunner.runProjectOverviewTests(test.projectDetails);
+            TestRunner.ProjectBuilderTests.Positive.projectOverviewPage(test.projectDetails);
 
         })
 
-        // after(() => {
-        //     apiSalesforce.apiLogin();
-        // })
+        after(() => {
+            apiSalesforce.apiLogin();
+        })
 
-        // after(() => {
-        //     cy.wrap(apiSalesforce.deleteSavedOpp());    
-        // })
+        after(() => {
+            cy.wrap(apiSalesforce.deleteSavedOpp());    
+        })
 
     })
 

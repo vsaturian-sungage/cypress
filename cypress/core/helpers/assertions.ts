@@ -1,6 +1,7 @@
 import DOMHelper from "./element-actions";
 import Validator from "./validator";
 import Logger from "../logger/logger";
+import { type } from "cypress/types/jquery";
 
 class Assert {
 
@@ -31,10 +32,8 @@ class Assert {
         })
     }
 
-    //Todo add logger showing expectedArray
     static includeArray (elementLocator: string, expectedArray: Array<string>, invoke?: string) {
         DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
-            Logger.logWithResults(expectedArray, actualValue, `Expected array of elements is included in the actual value`)
             expectedArray.forEach((expectedValue, index) => {
                 console.group('includeArray expanded method log');
                 console.log(`Actual Value: ${actualValue}`);
@@ -53,6 +52,12 @@ class Assert {
             actualValue = Validator.cleanseVariable(actualValue, true);
             expect(Number(actualValue)).to.be.above(0); 
         })
+    }
+
+    static elementExists (elementLocator: string) {
+        Validator.elementLocator(elementLocator);
+        Logger.log(`Check if element exists and visible on this path: ${elementLocator}`, `Element exists`)
+        return cy.xpath(elementLocator).should('be.visible');
     }
 
 }

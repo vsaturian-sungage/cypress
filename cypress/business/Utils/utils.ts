@@ -2,6 +2,7 @@ import Logger from "../../core/logger/logger";
 import { projectDefault, stateDppPortionMap } from "../../data/constants/projectDefault";
 import { OppAttributes } from "../types/opp-attributes-types";
 import { ProjectDetails } from "../types/project-details-types";
+import * as CustomError from '../../core/logger/error-handler'
 
 
 
@@ -38,7 +39,8 @@ class Utils {
 class ProjectUtils {
     
     static getDppType (loanData: ProjectDetails["loanData"]) {
-        let dppType = loanData.dppType ? loanData.dppType : [projectDefault.dppType, projectDefault.dppType_api];
+        let dppType = loanData.dppType ? loanData.dppType : projectDefault.dppType_api; //[projectDefault.dppType, projectDefault.dppType_api]
+        if (dppType == "One Tax Season") dppType = "June";
         return String(dppType);
     } 
 
@@ -111,7 +113,7 @@ class Calculate extends ProjectUtils {
 
         let solarAmount = solarCost - solarRebate - downPayment;
 
-        Logger.log(`Calculated Solar amount: ${solarAmount}`)
+        Logger.log(`Calculated Solar amount: ${solarAmount}`, 'Solar Loan Amount')
         return solarAmount;
     }
 
@@ -126,21 +128,23 @@ class Calculate extends ProjectUtils {
 
         let costRB = batteryLoanAmount + roofCost;
         
-        Logger.log(`Calculated amount of R&B: ${costRB}.`)
+        Logger.log(`Calculated amount of R&B: ${costRB}.`, 'R&B Loan Amount')
         return costRB;
     }
 
     static grossCostPerSize (projectDetails: ProjectDetails): number {
         let project = projectDetails.projectData;
         if (!project.solarCost) return 0;
-        if (project.solarCost && !project.solarSize) throw "solarSize is required in testing data";
+        if (project.solarCost && !project.solarSize) {
+            throw new CustomError.VariableError(project.solarSize, 'solarSize is required in testing data', Calculate.grossCostPerSize.name)
+        }
 
         let solarAmount = Calculate.costSolar(projectDetails);
         let solarSize = project.solarSize;
 
-        let grossCostPerSize = solarAmount/solarSize;
+        let grossCostPerSize = solarAmount/(solarSize*1000);
         
-        Logger.log(`Calculated gross cost per 1 kW: ${grossCostPerSize}.`)
+        Logger.log(`Calculated gross cost per 1 kW: ${grossCostPerSize}.`, 'Gross Cost per 1 kW')
         return grossCostPerSize;
     }
 
@@ -148,7 +152,7 @@ class Calculate extends ProjectUtils {
 
 
 
-class Is extends ProjectUtils {
+class Is {
 
     static havingBattery (projectData: ProjectDetails["projectData"]): boolean {
         return (projectData.solarCost > 0 && projectData.batteryCost) > 0;

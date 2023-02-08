@@ -51,6 +51,7 @@ class InstallerPortalSteps extends InstallerPortalUtils {
         password = Cypress.env('password_installer'),
         host = Cypress.env(`url_installerPortal`)
     ) {
+        console.clear(); //Prevents out of memory error due to uncontrollable logs from Cypress
         cy.visit(host);
         cy.xpath(xpathLocator.installerPortal.login_email)
             .type(`${email}`);
@@ -96,7 +97,9 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
             DOMHelper.getElementById("Spanish").click();
         } 
 
-        this.pickState(PII.state);
+        if (PII.state) {
+            this.pickState(PII.state);
+        }
 
         cy.log(`Set all PII fields.`);
 
@@ -104,48 +107,47 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
 
     static fillProjectData (projectData: ProjectDetails["projectData"]) {
 
-        let loanType: "Solar" | "Battery";
+        projectData.loanType = projectData.loanType 
+                                    ? projectData.loanType 
+                                    : projectData && projectData.solarCost 
+                                        ? "Solar"
+                                        : "Battery";
+        let loanType = projectData.loanType;
+
         let fieldsMap: Map<string, number>;
+        
         projectData.solarMountingLocation = projectData.solarMountingLocation || "Roof of Residence";
 
-        if (projectData && projectData.solarCost) {
-            loanType = "Solar";
-        } else if (projectData && !projectData.solarCost) {
-            loanType = "Battery";
-        } else {
-            throw "Loan type is not set. Verify that projectData are correct.";
-        }
-
-        if (loanType = "Solar") {
+        if (loanType == "Solar") {
             fieldsMap = new Map ([
-                ["Solar Cost", Number(projectData.solarCost) || 0],
-                ["System size", Number(projectData.solarSize) || 0],
-                ["Down Payment", Number(projectData.downPayment) || 0],
-                ["Rebate Amount", Number(projectData.solarRebate?.amount) || 0]
+                ["Solar Cost", Number(projectData.solarCost) ?? null],
+                ["System size", Number(projectData.solarSize) ?? null],
+                ["Down Payment", Number(projectData.downPayment) ?? null],
+                ["Rebate Amount", Number(projectData.solarRebate?.amount) ?? null]
             ]);
 
             this.pickSolarMountingLocation(projectData.solarMountingLocation);
 
-            if (projectData.batteryCost > 0) {
+            if (projectData.batteryCost > 0 || projectData.batterySize > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addBattery);
-                fieldsMap.set("Battery Cost", Number(projectData.batteryCost));
-                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) || projectDefault.min_batterySize);
-                fieldsMap.set("Battery Rebate", Number(projectData.batteryRebate?.amount) || 0);
+                fieldsMap.set("Battery Cost", Number(projectData.batteryCost) ?? null);
+                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) ?? null);
+                fieldsMap.set("Battery Rebate", Number(projectData.batteryRebate?.amount) ?? null);
             }
 
             if (projectData.roofCost > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addRoof);
-                fieldsMap.set("Roof Cost", Number(projectData.roofCost));
+                fieldsMap.set("Roof Cost", Number(projectData.roofCost) ?? null);
             }
             
-        } else if (loanType = "Battery") {
+        } else if (loanType == "Battery") {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.batteryLoanType);
 
             fieldsMap = new Map ([
-                ["Battery Cost", Number(projectData.solarCost) || 0],
-                ["Battery Capacity", Number(projectData.solarSize) || 0],
-                ["Down Payment", Number(projectData.downPayment) || 0],
-                ["Battery Rebate Amount", Number(projectData.solarRebate.amount) || 0]
+                ["Battery Cost", Number(projectData.batteryCost) ?? null],
+                ["Battery Capacity", Number(projectData.batterySize) ?? null],
+                ["Down Payment", Number(projectData.downPayment) ?? null],
+                ["Battery Rebate Amount", Number(projectData.batteryRebate?.amount) ?? null]
             ]);
         }
 

@@ -1,6 +1,7 @@
-export type dppType = "None" | 18 | "18" | "One Tax Season";
-
+export type dppType = "None" | 18 | "18" | "One Tax Season" | "June";
 export type solarMountingLocation = "Roof of Residence" | "Ground Mount" | "Roof of a separate structure on the property";
+export type term = 5 | 10 | 15 | 20 | 25;
+export type itc = 22 | 26 | 30;
 
 export type PII = {
     firstName: string,
@@ -18,9 +19,9 @@ export type ProjectData = {
     solarSize?: number,
     solarRebate?: {
         amount: number,
-        paidToHomeowner: boolean
+        paidToHomeowner?: boolean
     },
-    solarMountingLocation?: string,
+    solarMountingLocation?: solarMountingLocation,
 
     downPayment?: number,
 
@@ -28,23 +29,23 @@ export type ProjectData = {
     batterySize?: number,
     batteryRebate?: {
         amount: number,
-        paidToHomeowner: boolean
+        paidToHomeowner?: boolean
     }
 
     roofCost?: number
 }
 
 export type loanData = {
-    term?: number,
+    term?: term,
     rate?: string | number,
-    // dppType?: dppType,
-    dppType?: string | number,
-    itc?: number,
+    dppType?: dppType,
+    itc?: itc,
     customDppPortion?: string | number
 }
 
 export interface ProjectDetails {
-    PII: PII,
+    loanType?: "Solar" | "Battery",
+    PII?: PII,
     projectData?: ProjectData,
     loanData?: loanData
 }

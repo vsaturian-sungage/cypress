@@ -1,3 +1,6 @@
+import Validator from "../helpers/validator";
+
+
 class ErrorName extends Error {
     constructor(message: string) {
       super(message);
@@ -23,14 +26,14 @@ class LocatorError extends ErrorName {
 }
 
 class VariableError extends ErrorName {
-    constructor (variable: any, message: string) {
-        super(`Variable provided to the method is ${variable}. ${message}`)
+    constructor (variable: any, message: string, method?: string) {
+        super(`${method ? `Function: ${method}\n` : ''}Variable provided to the method is ${variable}. \n${message}`)
     }
 }
 
 class CleanseVariableError extends ErrorName {
-    constructor (variable: any, type: any) {
-        super(`Variable is not cleansed properly. \n\nVariable type if converted to Number: ${type}.\nVariable value: ${variable}.`)
+    constructor (variable: any) {
+        super(`Variable is not cleansed properly. \n\nVariable type if converted into Number: ${Number(Validator.cleanse(variable))}.\nVariable value: ${variable}.\nVariable after cleansing:${Validator.cleanse(variable)}`)
     }
 }
 

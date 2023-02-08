@@ -30,7 +30,7 @@ class Logger {
         cy.url().then((url) => {
             Cypress.log({
                 displayName: `${LogType.INFO}: Current URL`,
-                message: `URL: ${url}; ${message ? `message: ${message}` : ''}`,
+                message: `URL: ${url}. ${message ? `\nmessage: ${message}` : ''}`,
                 consoleProps: () => {
                     return {
                         URL: url,
@@ -51,7 +51,7 @@ class Logger {
         Cypress.log({
 
             displayName: `${LogType.INFO}: Results Comparison`,
-            message: `${message ? message + '.' : ''} **Expected Value**: ${expected}; **Actual Value**: ${actual}`,
+            message: `${message ? `${message}.\n` : ''} **Expected Value**: ${expected}. \n**Actual Value**: ${actual}`,
             consoleProps: () => {
                 return {
                     ExpectedResult: expected,

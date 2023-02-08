@@ -4,6 +4,7 @@ export default defineConfig({
   projectId: '7bj7cc',
   responseTimeout: 45000,
   defaultCommandTimeout: 30000,
+  numTestsKeptInMemory: 1,
   retries: {
     "runMode": 0, 
     "openMode": 0

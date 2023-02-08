@@ -1,13 +1,12 @@
-import { ProjectBuilder, ProjectBuilderUtils } from "../../page-objects/project-builder";
+// import { ProjectBuilderUtils } from "../../page-objects/project-builder";
 import Logger from "../../../core/logger/logger";
-import DOMHelper from "../../../core/helpers/element-actions";
 import Assert from "../../../core/helpers/assertions";
 import xpathLocator from "../../../data/locators/xpath-locators";
 import { ProjectDetails } from '../../types/project-details-types';
 import { Calculate, ProjectUtils } from "../../Utils/utils";
 import { projectDefault } from "../../../data/constants/projectDefault";
-import TestRunner from "../test-runner/test-runner";
 import { Is } from "../../Utils/utils";
+import CoreUtils from "../../../core/helpers/utility";
 
 
 class ProjectBuilderChecks {
@@ -15,12 +14,21 @@ class ProjectBuilderChecks {
     static Positive = {
 
         checkEmailText (PII: ProjectDetails["PII"]) {
-            ProjectBuilderUtils.getElementByName("Email").should('have.text', PII.email.toLowerCase())
+            cy.xpath(xpathLocator.installerPortal.projectOverview.email).should('have.text', PII.email.toLowerCase())
                 .invoke('text').then((actualEmail) => {
                     Logger.logWithResults(PII.email.toLowerCase(), actualEmail, "Email is correct")
                 }
             );
         },
+
+        //TODO delete once main method is tested
+        // checkEmailText_old (PII: ProjectDetails["PII"]) {
+        //     ProjectBuilderUtils.getElementByName("Email").should('have.text', PII.email.toLowerCase())
+        //         .invoke('text').then((actualEmail) => {
+        //             Logger.logWithResults(PII.email.toLowerCase(), actualEmail, "Email is correct")
+        //         }
+        //     );
+        // },
 
         checkFullNameText (PII: ProjectDetails["PII"]) {
             cy.get('h1').should(($h1) => {
@@ -106,7 +114,7 @@ class ProjectBuilderChecks {
             Assert.includeValue(actualAddress, PII.street);
             Assert.includeValue(actualAddress, PII.city);
             Assert.includeValue(actualAddress, PII.state);
-            Assert.includeValue(actualAddress, PII.ZIP);
+            Assert.includeValue(actualAddress, String(PII.ZIP));
         }
 
     }
@@ -114,22 +122,43 @@ class ProjectBuilderChecks {
 
     static Negative = {
 
-        checkProjectDataErrors (projectDetails: ProjectDetails) {
-            let project = projectDetails.projectData;
+        checkEmptyFieldErrors (projectDetails: ProjectDetails) {
+            Object.entries(projectDetails).forEach(([section, data]) => {
+                let emptyFields: Array<string> = [];
+                for (const [field, value] of Object.entries(data)) {
+                    if (!value) {
+                        emptyFields.push(field);
+                        let fieldName = processField(field);
+                        Assert.elementExists(xpathLocator.installerPortal.projectBuilder.requiredFieldError(fieldName)); 
+                    }
+                }
+                
+                if (emptyFields.length == 0) {
+                    Logger.warn(`checkEmptyFieldErrors function didn't find any empty field.\nemptyFields: ${emptyFields}`);
+                }
+            })
+        },
+
+        checkPopUpErrors (projectDetails: ProjectDetails) {
+            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage;;
             let message: Array<string> = [];
 
+            let project = projectDetails.projectData;
             let loanAmount = Calculate.loanAmount(projectDetails);
             let solarAmount = Calculate.costSolar(projectDetails);
             let RBAmount = Calculate.costRB(projectDetails);
-            let grossCost = Calculate.grossCostPerSize(projectDetails);
+            let grossCost: number;
+            if (projectDetails.projectData.solarSize) {
+                grossCost = Calculate.grossCostPerSize(projectDetails);
+            }
 
             if (loanAmount > projectDefault.max_loanAmount && !Is.batteryOnly(project)){
                 message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount.toLocaleString("en-US")}`);
-            } else if (loanAmount > projectDefault.max_loanAmount && !Is.batteryOnly(project)) {
+            } else if (loanAmount > projectDefault.max_loanAmount_batteryOnly && Is.batteryOnly(project)) {
                 message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount_batteryOnly.toLocaleString("en-US")}`);
             }
             if (loanAmount < projectDefault.min_loanAmount) {
-                message.push(`Your loan ($${loanAmount.toLocaleString("en-US")}) is under the minimum size`);
+                message.push(`Your loan ($${Math.round(loanAmount).toLocaleString("en-US")}) is under the minimum size`);
             } 
             if (project.solarSize > projectDefault.max_solarSize || project.solarSize < projectDefault.min_solarSize) {
                 message.push(`System Size is in kW and must be between 0 and ${projectDefault.max_solarSize}`);
@@ -137,22 +166,45 @@ class ProjectBuilderChecks {
             if (project.batterySize > projectDefault.max_batterySize || project.batterySize < projectDefault.min_batterySize) {
                 message.push(`Battery capacity is in kWh and must be between 1 and ${projectDefault.max_batterySize}`);
             }
-            if (solarAmount < RBAmount) {
+            if (solarAmount > 0 && solarAmount < RBAmount) {
                 message.push("The sum of battery cost and roof cost cannot exceed 50%");
             }
-            if (grossCost < projectDefault.min_grossCostPerSize || grossCost > projectDefault.max_grossCostPerSize) {
+            if (grossCost && (grossCost < projectDefault.min_grossCostPerSize || grossCost > projectDefault.max_grossCostPerSize)) {
                 message.push(`Gross cost must be between $${projectDefault.min_grossCostPerSize} and $${projectDefault.max_grossCostPerSize} per watt`);
             }
             if (!Is.roofAvailable(projectDetails["projectData"])) {
                 message.push("We can not finance a roof if the system is not located on the roof of the residence");
             }
 
-            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage;
-            Assert.includeArray(errorMessage, message);
+            if (message.length != 0) {
+                Assert.includeArray(errorMessage, message);
+            } else {
+                Logger.warn(`checkPopUpErrors function didn't find any errors`);
+            }
         }
 
     }
 
+}
+
+
+
+function processField(field: string) {
+    switch (field) {
+        case "solarCost" || "solarcost":
+            field = "Solar_Cost__c";
+            break;
+        case "solarSize" || "solarSize":
+            field = "System_Size_kW_STC__c";
+            break;
+        case "batteryCost" || "batterycost":
+            field = "Battery_Cost__c";
+            break;
+        case "batterySize" || "batterysize":
+            field = "Battery_Size__c";
+            break;
+    }
+    return field;
 }
 
 
