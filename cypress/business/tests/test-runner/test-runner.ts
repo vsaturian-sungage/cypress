@@ -3,12 +3,10 @@ import { ProjectDetails } from "../../types/project-details-types";
 
 
 class TestRunner {
-
     static ProjectBuilderTests = {
-
         Positive: {
-
             projectOverviewPage (projectDetails: ProjectDetails) {
+                ProjectBuilderChecks.Positive.checkProjectOverviewShown();
                 ProjectBuilderChecks.Positive.checkEmailText(projectDetails.PII);
                 ProjectBuilderChecks.Positive.checkFullNameText(projectDetails.PII);
                 ProjectBuilderChecks.Positive.checkAddress(projectDetails.PII);
@@ -24,7 +22,6 @@ class TestRunner {
         },
 
         Negative: {
-
             checkEmptyFieldErrors (projectDetails: ProjectDetails) {
                 ProjectBuilderChecks.Negative.checkEmptyFieldErrors(projectDetails);
             },
@@ -32,15 +29,8 @@ class TestRunner {
             checkPopUpErrors (projectDetails: ProjectDetails) {
                 ProjectBuilderChecks.Negative.checkPopUpErrors(projectDetails);
             }
-            
         }
-
     }
-
-    static CreditApplicationTests = {
-        
-    }
-
 }
 
 export default TestRunner;

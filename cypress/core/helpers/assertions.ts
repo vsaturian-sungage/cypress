@@ -1,7 +1,6 @@
 import DOMHelper from "./element-actions";
 import Validator from "./validator";
 import Logger from "../logger/logger";
-import { type } from "cypress/types/jquery";
 
 class Assert {
 
@@ -22,25 +21,18 @@ class Assert {
     static includeValue (elementLocator: string, expectedValue: any, invoke?: string) {
         DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
             Logger.logWithResults(expectedValue, actualValue, `Expected value is included in actual value`);
-            actualValue = Validator.cleanseVariable(actualValue);
             if (typeof expectedValue === "number") {
+                actualValue = Validator.cleanseVariable(actualValue);
                 expect(Number(actualValue)).to.include(Number(expectedValue));
             } else {
                 expect(actualValue).to.include(expectedValue);
             }
-            
         })
     }
 
     static includeArray (elementLocator: string, expectedArray: Array<string>, invoke?: string) {
         DOMHelper.getElementsText(elementLocator, invoke).then(actualValue => {
-            expectedArray.forEach((expectedValue, index) => {
-                console.group('includeArray expanded method log');
-                console.log(`Actual Value: ${actualValue}`);
-                console.log(`Expected Value: ${expectedValue}.`)
-                console.log(`Result: ${actualValue.includes(expectedValue)}`)
-                console.log(`Index of the value: ${expectedArray[index]}`)
-                console.groupEnd();
+            expectedArray.forEach((expectedValue) => {
                 expect(actualValue).to.include(expectedValue);
             });
         })

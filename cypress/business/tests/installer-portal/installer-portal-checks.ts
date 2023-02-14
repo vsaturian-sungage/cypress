@@ -1,34 +1,27 @@
-// import { ProjectBuilderUtils } from "../../page-objects/project-builder";
 import Logger from "../../../core/logger/logger";
 import Assert from "../../../core/helpers/assertions";
 import xpathLocator from "../../../data/locators/xpath-locators";
 import { ProjectDetails } from '../../types/project-details-types';
 import { Calculate, ProjectUtils } from "../../Utils/utils";
-import { projectDefault } from "../../../data/constants/projectDefault";
+import { projectDefault } from "../../../data/constants/project-default";
 import { Is } from "../../Utils/utils";
-import CoreUtils from "../../../core/helpers/utility";
 
 
 class ProjectBuilderChecks {
-
     static Positive = {
+        checkProjectOverviewShown () {
+            //If we're at Project Builder, "projectbuilder" property appears in the url
+            cy.url().should('not.include', 'projectbuilder');
+            cy.url().should('include', 'ProjectOverview');
+        },
 
         checkEmailText (PII: ProjectDetails["PII"]) {
             cy.xpath(xpathLocator.installerPortal.projectOverview.email).should('have.text', PII.email.toLowerCase())
                 .invoke('text').then((actualEmail) => {
-                    Logger.logWithResults(PII.email.toLowerCase(), actualEmail, "Email is correct")
+                    Logger.logWithResults(PII.email.toLowerCase(), actualEmail, "Email is correct");
                 }
             );
         },
-
-        //TODO delete once main method is tested
-        // checkEmailText_old (PII: ProjectDetails["PII"]) {
-        //     ProjectBuilderUtils.getElementByName("Email").should('have.text', PII.email.toLowerCase())
-        //         .invoke('text').then((actualEmail) => {
-        //             Logger.logWithResults(PII.email.toLowerCase(), actualEmail, "Email is correct")
-        //         }
-        //     );
-        // },
 
         checkFullNameText (PII: ProjectDetails["PII"]) {
             cy.get('h1').should(($h1) => {
@@ -36,7 +29,7 @@ class ProjectBuilderChecks {
                 expect($h1.get(0).innerText.toLowerCase()).to.include(PII.lastName.toLowerCase());
             })
                 .invoke('text').then((fullName) => {
-                    Logger.logWithResults(`${PII.firstName} ${PII.lastName}`, fullName, "Full name is correct")
+                    Logger.logWithResults(`${PII.firstName} ${PII.lastName}`, fullName, "Full name is correct");
                 }
             );  
         },
@@ -53,7 +46,7 @@ class ProjectBuilderChecks {
             let havingBattery: boolean;
             let havingRoof: boolean;
             let actualProjectData = xpathLocator.installerPortal.projectOverview.projectDetails;
-            let expectedBatterySize = projectData.batteryCost ? projectData.batterySize || projectDefault.min_batterySize : 0
+            let expectedBatterySize = projectData.batteryCost ? projectData.batterySize || projectDefault.batterySize.min : 0;
     
             loanType = ProjectUtils.getLoanType(projectData); 
             havingBattery = Is.havingBattery(projectData);
@@ -63,36 +56,48 @@ class ProjectBuilderChecks {
     
                 //Additional fields
                 Assert.includeValue(actualProjectData.loanType, loanType);
-                if (loanType === "Solar" && havingBattery === true) {
+                if (loanType === "Solar" && havingBattery) {
                     Assert.includeValue(actualProjectData.additionalProducts, "Batteries");
                 }
-                if (loanType === "Solar" && havingRoof === true) {
+                if (loanType === "Solar" && havingRoof) {
                     Assert.includeValue(actualProjectData.additionalProducts, "Roof");
                 }
                 
                 //Solar Only fields
+                Logger.logAccented("Checking solar cost");
                 Assert.equalValues(actualProjectData.solarCost, projectData.solarCost || 0, "value");
+                Logger.logAccented("Checking solar size");
                 Assert.equalValues(actualProjectData.solarSize, projectData.solarSize || 0, "value");
+                Logger.logAccented("Checking solar rebate");
                 Assert.equalValues(actualProjectData.solarRebateAmount, projectData.solarRebate?.amount || 0, "value");
+                Logger.logAccented("Checking down payment");
                 Assert.equalValues(actualProjectData.downPayment, projectData.downPayment || 0, "value");
     
                 //Solar+ fields
-                if (havingBattery === true) {
+                if (havingBattery) {
+                    Logger.logAccented("Checking battery cost");
                     Assert.equalValues(actualProjectData.batteryCost, projectData.batteryCost || 0, "value");
+                    Logger.logAccented("Checking battery size");
                     Assert.equalValues(actualProjectData.batterySize, expectedBatterySize, "value");
+                    Logger.logAccented("Checking battery rebate");
                     Assert.equalValues(actualProjectData.batteryRebateAmount, projectData.batteryRebate?.amount || 0, "value");
                 }
-                if (havingRoof === true) {
+                if (havingRoof) {
+                    Logger.logAccented("Checking roof cost");
                     Assert.equalValues(actualProjectData.roofCost, projectData.roofCost || 0, "value");
                 }
             } else {
                 // Battery Only fields
+                Logger.logAccented("Checking battery cost");
                 Assert.equalValues(actualProjectData.batteryCost, projectData.batteryCost || 0, "value");
+                Logger.logAccented("Checking battery size");
                 Assert.equalValues(actualProjectData.batterySize, expectedBatterySize, "value");
+                Logger.logAccented("Checking battery rebate");
                 Assert.equalValues(actualProjectData.batteryRebateAmount, projectData.batteryRebate?.amount || 0, "value");
+                Logger.logAccented("Checking down payment");
                 Assert.equalValues(actualProjectData.downPayment, projectData.downPayment || 0, "value");
             }
-            Logger.log("Project details are verified.")
+            Logger.log("Project details are verified.");
         },
 
         checkLoanData (projectDetails: ProjectDetails) {
@@ -100,18 +105,24 @@ class ProjectBuilderChecks {
             let expectedLoanAmount = Calculate.loanAmount(projectDetails);
             let expectedDppPortion = Calculate.dppPortion(projectDetails);
             let expectedDppType = ProjectUtils.getDppType(projectDetails.loanData);
-            let actualTerm = xpathLocator.installerPortal.projectOverview.financingDetails.term
+            let actualTerm = xpathLocator.installerPortal.projectOverview.financingDetails.term;
     
+            Logger.logAccented("Checking loan amount");
             Assert.equalValues(actulLoanData.loanAmount, expectedLoanAmount);
+            Logger.logAccented("Checking monthly paymnet");
             Assert.greaterThanZero(actulLoanData.monthlyPayment);
+            Logger.logAccented("Checking DPP portion");
             Assert.equalValues(actulLoanData.dppPortion, expectedDppPortion);
+            Logger.logAccented("Checking DPP type");
             Assert.includeValue(actulLoanData.dppType, expectedDppType);
-            Assert.includeValue(actualTerm, String(projectDetails.loanData.term || 5))
+            Logger.logAccented("Checking term");
+            Assert.includeValue(actualTerm, String(projectDetails.loanData.term || 5));
         },
 
         checkAddress (PII: ProjectDetails["PII"]) {
-            let actualAddress = xpathLocator.installerPortal.projectOverview.address
-            Assert.includeValue(actualAddress, PII.street);
+            let actualAddress = xpathLocator.installerPortal.projectOverview.address;
+            let actualStreet = xpathLocator.installerPortal.projectOverview.street;
+            Assert.includeValue(actualStreet, PII.street);
             Assert.includeValue(actualAddress, PII.city);
             Assert.includeValue(actualAddress, PII.state);
             Assert.includeValue(actualAddress, String(PII.ZIP));
@@ -121,14 +132,13 @@ class ProjectBuilderChecks {
 
 
     static Negative = {
-
         checkEmptyFieldErrors (projectDetails: ProjectDetails) {
             Object.entries(projectDetails).forEach(([section, data]) => {
                 let emptyFields: Array<string> = [];
-                for (const [field, value] of Object.entries(data)) {
+                for (const [key, value] of Object.entries(data)) {
                     if (!value) {
-                        emptyFields.push(field);
-                        let fieldName = processField(field);
+                        emptyFields.push(key);
+                        let fieldName = getSalesforceFieldName(key);
                         Assert.elementExists(xpathLocator.installerPortal.projectBuilder.requiredFieldError(fieldName)); 
                     }
                 }
@@ -140,8 +150,8 @@ class ProjectBuilderChecks {
         },
 
         checkPopUpErrors (projectDetails: ProjectDetails) {
-            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage;;
-            let message: Array<string> = [];
+            let errorMessage = xpathLocator.installerPortal.projectBuilder.errorMessage;
+            let messages: Array<string> = [];
 
             let project = projectDetails.projectData;
             let loanAmount = Calculate.loanAmount(projectDetails);
@@ -152,49 +162,48 @@ class ProjectBuilderChecks {
                 grossCost = Calculate.grossCostPerSize(projectDetails);
             }
 
-            if (loanAmount > projectDefault.max_loanAmount && !Is.batteryOnly(project)){
-                message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount.toLocaleString("en-US")}`);
-            } else if (loanAmount > projectDefault.max_loanAmount_batteryOnly && Is.batteryOnly(project)) {
-                message.push(`total loan size cannot exceed $${projectDefault.max_loanAmount_batteryOnly.toLocaleString("en-US")}`);
+            if (loanAmount > projectDefault.loanAmount.max && !Is.batteryOnly(project)){
+                messages.push(`total loan size cannot exceed $${projectDefault.loanAmount.max.toLocaleString("en-US")}`);
+            } else if (loanAmount > projectDefault.loanAmount.maxBatteryOnly && Is.batteryOnly(project)) {
+                messages.push(`total loan size cannot exceed $${projectDefault.loanAmount.maxBatteryOnly.toLocaleString("en-US")}`);
             }
-            if (loanAmount < projectDefault.min_loanAmount) {
-                message.push(`Your loan ($${Math.round(loanAmount).toLocaleString("en-US")}) is under the minimum size`);
+            if (loanAmount < projectDefault.loanAmount.min) {
+                messages.push(`Your loan ($${Math.round(loanAmount).toLocaleString("en-US")}) is under the minimum size`);
             } 
-            if (project.solarSize > projectDefault.max_solarSize || project.solarSize < projectDefault.min_solarSize) {
-                message.push(`System Size is in kW and must be between 0 and ${projectDefault.max_solarSize}`);
+            if (project.solarSize > projectDefault.solarSize.max || project.solarSize < projectDefault.solarSize.min) {
+                messages.push(`System Size is in kW and must be between 0 and ${projectDefault.solarSize.max}`);
             } 
-            if (project.batterySize > projectDefault.max_batterySize || project.batterySize < projectDefault.min_batterySize) {
-                message.push(`Battery capacity is in kWh and must be between 1 and ${projectDefault.max_batterySize}`);
+            if (project.batterySize > projectDefault.batterySize.max || project.batterySize < projectDefault.batterySize.min) {
+                messages.push(`Battery capacity is in kWh and must be between 1 and ${projectDefault.batterySize.max}`);
             }
             if (solarAmount > 0 && solarAmount < RBAmount) {
-                message.push("The sum of battery cost and roof cost cannot exceed 50%");
+                messages.push("The sum of battery cost and roof cost cannot exceed 50%");
             }
-            if (grossCost && (grossCost < projectDefault.min_grossCostPerSize || grossCost > projectDefault.max_grossCostPerSize)) {
-                message.push(`Gross cost must be between $${projectDefault.min_grossCostPerSize} and $${projectDefault.max_grossCostPerSize} per watt`);
+            if (grossCost && (grossCost < projectDefault.grossCostPerSize.min || grossCost > projectDefault.grossCostPerSize.max)) {
+                messages.push(`Gross cost must be between $${projectDefault.grossCostPerSize.min} and $${projectDefault.grossCostPerSize.max} per watt`);
             }
             if (!Is.roofAvailable(projectDetails["projectData"])) {
-                message.push("We can not finance a roof if the system is not located on the roof of the residence");
+                messages.push("We can not finance a roof if the system is not located on the roof of the residence");
             }
 
-            if (message.length != 0) {
-                Assert.includeArray(errorMessage, message);
+            if (messages.length != 0) {
+                Assert.includeArray(errorMessage, messages);
             } else {
                 Logger.warn(`checkPopUpErrors function didn't find any errors`);
             }
         }
-
     }
 
 }
 
 
 
-function processField(field: string) {
+function getSalesforceFieldName(field: string) {
     switch (field) {
         case "solarCost" || "solarcost":
             field = "Solar_Cost__c";
             break;
-        case "solarSize" || "solarSize":
+        case "solarSize" || "solarsize":
             field = "System_Size_kW_STC__c";
             break;
         case "batteryCost" || "batterycost":
@@ -202,6 +211,9 @@ function processField(field: string) {
             break;
         case "batterySize" || "batterysize":
             field = "Battery_Size__c";
+            break;
+        default:
+            Logger.warn(`getSalesforceFieldName function got the value with unmatched case`);
             break;
     }
     return field;

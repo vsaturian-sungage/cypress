@@ -50,6 +50,7 @@ const xpathLocator = {
             fullName: '//h1/text()[1]',
             sungageID: '//span[contains(text(), "ID")]/following-sibling::span',
             address: '//p[contains(text(), "Address")]/strong',
+            street: '(//p[contains(text(), "Address")]/strong/text())[1]',
 
             projectDetails: {
                 loanType: '//strong[contains(text(), "Financing Product")]/following-sibling::span',

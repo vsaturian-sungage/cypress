@@ -1,7 +1,6 @@
-import * as CustomError from '../logger/error-handler'
+import * as CustomError from '../logger/error-handler';
 
 class Validator {
-    
     static elementLocator (elementLocator: string) {
         if (!elementLocator || elementLocator == "//" || elementLocator == "/") {
             throw new CustomError.LocatorError(elementLocator);
@@ -14,12 +13,11 @@ class Validator {
         } else {
             return variable;
         }
-        
     }
 
     static cleanseVariable (variable: any, expectNumber: boolean = false) {
         let cleansedVariable = this.cleanse(variable);
-        if (expectNumber === true && isNaN(Number(cleansedVariable))) {
+        if (expectNumber && isNaN(Number(cleansedVariable))) {
             throw new CustomError.CleanseVariableError(variable);
         }
         return cleansedVariable;
@@ -36,7 +34,6 @@ class Validator {
             array[index] = this.cleanse(key);
         });
     }
-
 }
 
 export default Validator

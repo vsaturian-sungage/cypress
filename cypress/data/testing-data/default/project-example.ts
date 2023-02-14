@@ -1,6 +1,8 @@
 import { ExampleCases } from "../../types/test-cases";
 
-const defaultProjectData: ExampleCases = {   
+
+
+const exampleProject: ExampleCases = {   
     solar: {
         id: 0,
         desc: "Example of a solar project",
@@ -37,7 +39,7 @@ const defaultProjectData: ExampleCases = {
         }
     },
     solarPlus: {
-        id: 3,
+        id: 2,
         desc: "Example of a full solar+ project",
         projectDetails: {
             projectData: {
@@ -71,4 +73,4 @@ const defaultProjectData: ExampleCases = {
 
 }
 
-export default defaultProjectData;
+export default exampleProject;

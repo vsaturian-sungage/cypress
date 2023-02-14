@@ -20,7 +20,6 @@ class LocatorError extends ErrorName {
     constructor(locator: string) {
         super(`Locator is not set for the method. Locator: ${locator}`);
         // this.locator = locator;
-        
     }
 
 }

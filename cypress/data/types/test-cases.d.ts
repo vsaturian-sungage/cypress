@@ -1,4 +1,4 @@
-import { ProjectDetails } from "../../business/types/project-details-types"
+import { ProjectDetails } from "../../business/types/project-details-types";
 
 export interface TestCases {
     [sectionName: string]: Array<SectionData> 

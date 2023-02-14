@@ -1,21 +1,32 @@
-import { StringMatcher } from "cypress/types/net-stubbing"
-import CoreUtils from "../helpers/utility"
+import CoreUtils from "../helpers/utility";
 
 
-const LogType = {
+const LogLevel = {
     INFO: '🥦 INFO',
+    ACCENTED: '🍆 INFO',
     WARNING: '🍋 WARN',
     ERROR: '🍅 ERROR'
 }
 
 class Logger {
-
-    //Logs
-
     static log (message: string, name?: string) {
         CoreUtils.synchronizeWithCypress(() => {
             Cypress.log({
-                displayName: `${LogType.INFO}: ${name ? name : 'Log message'}`,
+                displayName: `${LogLevel.INFO}: ${name ? name : 'Log message'}`,
+                message: message,
+                consoleProps: () => {
+                    return {
+                        Message: message
+                    }
+                }
+            })
+        }) 
+    }
+
+    static logAccented (message: string, name?: string) {
+        CoreUtils.synchronizeWithCypress(() => {
+            Cypress.log({
+                displayName: `${LogLevel.ACCENTED}: ${name ? name : 'Log message'}`,
                 message: message,
                 consoleProps: () => {
                     return {
@@ -29,7 +40,7 @@ class Logger {
     static logWithURL (message?: string) {
         cy.url().then((url) => {
             Cypress.log({
-                displayName: `${LogType.INFO}: Current URL`,
+                displayName: `${LogLevel.INFO}: Current URL`,
                 message: `URL: ${url}. ${message ? `\nmessage: ${message}` : ''}`,
                 consoleProps: () => {
                     return {
@@ -49,9 +60,8 @@ class Logger {
         }
 
         Cypress.log({
-
-            displayName: `${LogType.INFO}: Results Comparison`,
-            message: `${message ? `${message}.\n` : ''} **Expected Value**: ${expected}. \n**Actual Value**: ${actual}`,
+            displayName: `${LogLevel.INFO}: Results Comparison`,
+            message: `${message ? `${message}.\n` : ''} **Expected Value**: ${expected} \n**Actual Value**: ${actual}`,
             consoleProps: () => {
                 return {
                     ExpectedResult: expected,
@@ -59,17 +69,15 @@ class Logger {
                     Message: message || undefined
                 }
             }
-
         })
     }
 
 
 
-    //Warnings
     static warn (message: any) {
-        cy.then(() => {
+        CoreUtils.synchronizeWithCypress(() => {
             Cypress.log({
-                displayName: `${LogType.WARNING}: Warn message`,
+                displayName: `${LogLevel.WARNING}: Warn message`,
                 message: message,
                 consoleProps: () => {
                     return {
@@ -79,11 +87,6 @@ class Logger {
             })
         })
     } 
-
-
-
-    //Errors
-
 }
 
 export default Logger;

@@ -1,4 +1,4 @@
-export type dppType = "None" | 18 | "18" | "One Tax Season" | "June";
+export type dppType = 0 | "None" | 18 | "18" | "One Tax Season" | "June";
 export type solarMountingLocation = "Roof of Residence" | "Ground Mount" | "Roof of a separate structure on the property";
 export type term = 5 | 10 | 15 | 20 | 25;
 export type itc = 22 | 26 | 30;
@@ -44,7 +44,7 @@ export type loanData = {
 }
 
 export interface ProjectDetails {
-    loanType?: "Solar" | "Battery",
+    loanType?: "Solar" | "Battery" | "Solar+",
     PII?: PII,
     projectData?: ProjectData,
     loanData?: loanData

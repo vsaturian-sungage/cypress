@@ -1,12 +1,11 @@
 import { InstallerPortalSteps, ProjectBuilderSteps } from '../steps/installer-portal/installer-portal-steps';
 import { Utils } from '../Utils/utils';
 import { ProjectDetails } from '../types/project-details-types';
-import defaultProjectData from '../../data/testing-data/default/project-example'
+import exampleProject from '../../data/testing-data/default/project-example'
 import Logger from '../../core/logger/logger';
 
 
 class ProjectBuilder {
-    
     static createProject (projectDetails: ProjectDetails, saveOppId = true) {
 
         InstallerPortalSteps.goTo("Project Builder");
@@ -14,50 +13,38 @@ class ProjectBuilder {
         //Use default project data if none provided for a test
         projectDetails.PII = projectDetails.PII 
                                 ? projectDetails.PII 
-                                : defaultProjectData.solar.projectDetails.PII;
-        // projectDetails.projectData = projectDetails.loanData && projectDetails.projectData 
-        //                                 ? projectDetails.projectData 
-        //                                 : defaultProjectData.projectDetails.projectData;
-
-        projectDetails.projectData = !projectDetails.projectData && projectDetails.loanData
-                                        ? projectDetails.loanType == "Battery"
-                                            ? defaultProjectData.battery.projectDetails.projectData
-                                            : defaultProjectData.solar.projectDetails.projectData
-                                        : projectDetails.projectData
+                                : exampleProject.solar.projectDetails.PII;
+        if (projectDetails.loanData) {
+            projectDetails.projectData = !projectDetails.projectData
+                                            ? projectDetails.loanType == "Battery"
+                                                ? exampleProject.battery.projectDetails.projectData
+                                                : projectDetails.loanType == "Solar+"
+                                                    ? exampleProject.solarPlus.projectDetails.projectData
+                                                    : exampleProject.solar.projectDetails.projectData
+                                            : projectDetails.projectData
+        }
         
         ProjectBuilderSteps.fillPersonalInfo(projectDetails.PII);
-
         if (projectDetails.projectData) {
-            
             ProjectBuilderSteps.clickNext();
-            ProjectBuilderSteps.fillProjectData(projectDetails.projectData);
-
+            ProjectBuilderSteps.fillProjectData(projectDetails);
         }
         if (projectDetails.loanData) {
-
             ProjectBuilderSteps.clickNext();
             ProjectBuilderSteps.fillLoanData(projectDetails.loanData);
-
         }
-
         ProjectBuilderSteps.clickDone();
 
-        if (saveOppId === true) {
+        if (saveOppId) {
             ProjectBuilderUtils.saveOppId();
         }
 
     }
-
-    static editProject () {
-
-    }
-
 }
 
 
 
 class ProjectBuilderUtils {
-
     static saveOppId () {
         cy.url().should('contain', 'id=').then(() => {
             cy.location('href').then(urlString => {
@@ -68,7 +55,6 @@ class ProjectBuilderUtils {
             })
         })
     }
-
 }
 
 export { ProjectBuilder, ProjectBuilderUtils }

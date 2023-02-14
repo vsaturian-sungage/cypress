@@ -1,12 +1,11 @@
+import Logger from 'cypress/core/logger/logger';
 import DOMHelper from '../../../core/helpers/element-actions';
-import { projectDefault } from '../../../data/constants/projectDefault';
 import xpathLocator from '../../../data/locators/xpath-locators';
 import { ProjectDetails } from '../../types/project-details-types';
 
 
 
 class InstallerPortalUtils {
-
     static pickState (state: string) {
         cy.window().then((window) => {
             window.eval("let arrow = document.querySelectorAll('.ant-select-arrow');arrow[0].click();");
@@ -29,28 +28,26 @@ class InstallerPortalUtils {
         DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppTypeValue(dppType));
     }
 
-    static pickDppPortion (itc = 30, customValue: string | number) { //Doesn't work. States that values of the dropdown has display:none. Force clicking doesn't do anything
+    static pickDppPortion (itc = 30, customValue: string | number) { //Doesn't work. States that values of the dropdown has display:none
         if (!customValue) {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdown);
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdownValue(itc));
         } else {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdown);
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.dppPortionDropdownValue('Custom'));
-            DOMHelper.typeInto.fieldByLocator(xpathLocator.installerPortal.projectBuilder.customDppPortion, customValue)
+            DOMHelper.typeInto.fieldByLocator(xpathLocator.installerPortal.projectBuilder.customDppPortion, customValue);
         }
     }
-
 }
 
 
 
 class InstallerPortalSteps extends InstallerPortalUtils {
-    
-    static login_installerPortal (
-        email = Cypress.env('email_installer'), 
-        password = Cypress.env('password_installer'),
-        host = Cypress.env(`url_installerPortal`)
-    ) {
+    static login (email?: string, password?: string, host?: string) {
+        email ??= Cypress.env('email_installer');
+        password ??= Cypress.env('password_installer');
+        host ??= Cypress.env(`url_installerPortal`);
+
         console.clear(); //Prevents out of memory error due to uncontrollable logs from Cypress
         cy.visit(host);
         cy.xpath(xpathLocator.installerPortal.login_email)
@@ -63,8 +60,9 @@ class InstallerPortalSteps extends InstallerPortalUtils {
     }
     
     static goTo (component: string, host = Cypress.env('url_installerPortal')) {
-        if (component = "Project Builder")
-            cy.visit(`${host}/projects/ProjectOverview#/projectbuilder`);
+        if (component == "Project Builder") {
+            cy.visit(`${host}/projects/ProjectOverview#/projectbuilder`); 
+        }  
     }
 
     static clickDone () {
@@ -74,15 +72,12 @@ class InstallerPortalSteps extends InstallerPortalUtils {
     static clickNext () {
         DOMHelper.getElementById("next", "button").click();
     }
-
 }
 
 
 
 class ProjectBuilderSteps extends InstallerPortalSteps {
-    
     static fillPersonalInfo (PII: ProjectDetails["PII"]) {
-
         let fieldsPIIMap = new Map ([
             ["First Name", PII.firstName],
             ["Last Name", PII.lastName],
@@ -100,63 +95,58 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
         if (PII.state) {
             this.pickState(PII.state);
         }
-
-        cy.log(`Set all PII fields.`);
-
     }
 
-    static fillProjectData (projectData: ProjectDetails["projectData"]) {
+    static fillProjectData (projectDetails: ProjectDetails) {
+        let project = projectDetails.projectData;
 
-        projectData.loanType = projectData.loanType 
-                                    ? projectData.loanType 
-                                    : projectData && projectData.solarCost 
+        projectDetails.loanType = projectDetails.loanType 
+                                    ? projectDetails.loanType 
+                                    : project?.solarCost 
                                         ? "Solar"
                                         : "Battery";
-        let loanType = projectData.loanType;
+        let loanType = projectDetails.loanType;
 
         let fieldsMap: Map<string, number>;
         
-        projectData.solarMountingLocation = projectData.solarMountingLocation || "Roof of Residence";
+        project.solarMountingLocation = project.solarMountingLocation || "Roof of Residence";
 
-        if (loanType == "Solar") {
+        if (loanType == "Solar" || loanType == "Solar+") {
             fieldsMap = new Map ([
-                ["Solar Cost", Number(projectData.solarCost) ?? null],
-                ["System size", Number(projectData.solarSize) ?? null],
-                ["Down Payment", Number(projectData.downPayment) ?? null],
-                ["Rebate Amount", Number(projectData.solarRebate?.amount) ?? null]
+                ["Solar Cost", project.solarCost ?? null],
+                ["System size", project.solarSize ?? null],
+                ["Down Payment", project.downPayment ?? null],
+                ["Rebate Amount", project.solarRebate?.amount ?? null]
             ]);
 
-            this.pickSolarMountingLocation(projectData.solarMountingLocation);
+            this.pickSolarMountingLocation(project.solarMountingLocation);
 
-            if (projectData.batteryCost > 0 || projectData.batterySize > 0) {
+            if (project.batteryCost > 0 || project.batterySize > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addBattery);
-                fieldsMap.set("Battery Cost", Number(projectData.batteryCost) ?? null);
-                fieldsMap.set("Battery Capacity", Number(projectData.batterySize) ?? null);
-                fieldsMap.set("Battery Rebate", Number(projectData.batteryRebate?.amount) ?? null);
+                fieldsMap.set("Battery Cost", project.batteryCost ?? null);
+                fieldsMap.set("Battery Capacity", project.batterySize ?? null);
+                fieldsMap.set("Battery Rebate", project.batteryRebate?.amount ?? null);
             }
 
-            if (projectData.roofCost > 0) {
+            if (project.roofCost > 0) {
                 DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.addRoof);
-                fieldsMap.set("Roof Cost", Number(projectData.roofCost) ?? null);
+                fieldsMap.set("Roof Cost", project.roofCost ?? null);
             }
             
         } else if (loanType == "Battery") {
             DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.batteryLoanType);
-
             fieldsMap = new Map ([
-                ["Battery Cost", Number(projectData.batteryCost) ?? null],
-                ["Battery Capacity", Number(projectData.batterySize) ?? null],
-                ["Down Payment", Number(projectData.downPayment) ?? null],
-                ["Battery Rebate Amount", Number(projectData.batteryRebate?.amount) ?? null]
+                ["Battery Cost", project.batteryCost ?? null],
+                ["Battery Capacity", project.batterySize ?? null],
+                ["Down Payment", project.downPayment ?? null],
+                ["Battery Rebate Amount", project.batteryRebate?.amount ?? null]
             ]);
         }
 
         fieldsMap.forEach(DOMHelper.typeInto.followingSibling);
-        
     }
 
     static fillLoanData (loanData: ProjectDetails["loanData"]) {
-        
         if (loanData.rate) {
             this.pickRate(loanData.rate, loanData.term);
         }
@@ -168,9 +158,6 @@ class ProjectBuilderSteps extends InstallerPortalSteps {
         }
         DOMHelper.clickOn(xpathLocator.installerPortal.projectBuilder.term(loanData.term || 5));
     }
-
-    
-
 }
 
 

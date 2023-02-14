@@ -1,4 +1,4 @@
-import { projectDefault } from "../../constants/projectDefault";
+import { projectDefault } from "../../constants/project-default";
 import { TestCases } from "../../types/test-cases";
 
 
@@ -9,13 +9,13 @@ const testCases: TestCases = {
             desc: "Empty fields",
             projectDetails: {
                 PII: {
-                    "firstName": "",
-                    "lastName": "z",
-                    "email": "A@z.aZ",
-                    "street": "1",
-                    "city": "0",
-                    "state": "CA",
-                    "ZIP": "92501"
+                    firstName: "",
+                    lastName: "z",
+                    email: "A@z.aZ",
+                    street: "1",
+                    city: "0",
+                    state: "CA",
+                    ZIP: "92501"
                 }
             }
         },
@@ -129,8 +129,7 @@ const testCases: TestCases = {
             desc: "Empty fields",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.someCost,
-                    "solarSize": null
+                    "solarCost": projectDefault.someCost
                 }
             }
         },
@@ -138,8 +137,8 @@ const testCases: TestCases = {
             id: 10,
             desc: "Empty fields",
             projectDetails: {
+                loanType: "Solar",
                 projectData: {
-                    "solarCost": null,
                     "solarSize": projectDefault.someSize
                 }
             }
@@ -151,8 +150,7 @@ const testCases: TestCases = {
                 projectData: {
                     "solarCost": projectDefault.someCost,
                     "solarSize": projectDefault.someSize,
-                    "batteryCost": projectDefault.someCost,
-                    "batterySize": null
+                    "batteryCost": projectDefault.someCost
                 }
             }
         },
@@ -163,7 +161,6 @@ const testCases: TestCases = {
                 projectData: {
                     "solarCost": projectDefault.someCost,
                     "solarSize": projectDefault.someSize,
-                    "batteryCost": null,
                     "batterySize": projectDefault.someSize
                 }
             }
@@ -173,8 +170,7 @@ const testCases: TestCases = {
             desc: "Empty fields",
             projectDetails: {
                 projectData: {
-                    "batteryCost": projectDefault.someCost,
-                    "batterySize": null
+                    "batteryCost": projectDefault.someCost
                 }
             }
         },
@@ -182,8 +178,8 @@ const testCases: TestCases = {
             id: 14,
             desc: "Empty fields",
             projectDetails: {
+                loanType: "Battery",
                 projectData: {
-                    "batteryCost": null,
                     "batterySize": projectDefault.someSize
                 }
             }
@@ -200,8 +196,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.min_loanAmount - 0.01,
-                    "solarSize": projectDefault.min_solarSize
+                    "solarCost": projectDefault.loanAmount.min - 0.01,
+                    "solarSize": projectDefault.solarSize.min
                 }
             }
         },
@@ -210,8 +206,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.min_loanAmount,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarCost": projectDefault.loanAmount.min,
+                    "solarSize": projectDefault.solarSize.min,
                     "solarRebate": {
                         "amount": 0.01
                     }
@@ -223,8 +219,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.min_loanAmount,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarCost": projectDefault.loanAmount.min,
+                    "solarSize": projectDefault.solarSize.min,
                     "downPayment": 0.01
                 }
             }
@@ -234,8 +230,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.min_loanAmount + 0.01,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarCost": projectDefault.loanAmount.min + 0.01,
+                    "solarSize": projectDefault.solarSize.min,
                     "downPayment": 0.01,
                     "solarRebate": {
                         "amount": 0.01
@@ -249,13 +245,13 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "solarCost": 4500.02,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarSize": projectDefault.solarSize.min,
                     "downPayment": 0.01,
                     "solarRebate": {
                         "amount": 0.01
                     },
                     "batteryCost": 2999.99,
-                    "batterySize": projectDefault.min_batterySize
+                    "batterySize": projectDefault.batterySize.min
                 }
             }
         },
@@ -265,13 +261,13 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "solarCost": 4500.02,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarSize": projectDefault.solarSize.min,
                     "downPayment": 0.01,
                     "solarRebate": {
                         "amount": 0.01
                     },
                     "batteryCost": 3000,
-                    "batterySize": projectDefault.min_batterySize,
+                    "batterySize": projectDefault.batterySize.min,
                     "batteryRebate": {
                         "amount": 0.01
                     }
@@ -284,13 +280,13 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "solarCost": 4500.02,
-                    "solarSize": projectDefault.min_solarSize,
+                    "solarSize": projectDefault.solarSize.min,
                     "downPayment": 0.01,
                     "solarRebate": {
                         "amount": 0.01
                     },
                     "batteryCost": 2999,
-                    "batterySize": projectDefault.min_batterySize,
+                    "batterySize": projectDefault.batterySize.min,
                     "batteryRebate": {
                         "amount": 0.01
                     },
@@ -304,8 +300,8 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "downPayment": 0.01,
-                    "batteryCost": projectDefault.min_loanAmount + 0.01,
-                    "batterySize": projectDefault.min_batterySize,
+                    "batteryCost": projectDefault.loanAmount.min + 0.01,
+                    "batterySize": projectDefault.batterySize.min,
                     "batteryRebate": {
                         "amount": 0.01
                     }
@@ -317,8 +313,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "batteryCost": projectDefault.min_loanAmount,
-                    "batterySize": projectDefault.min_batterySize,
+                    "batteryCost": projectDefault.loanAmount.min,
+                    "batterySize": projectDefault.batterySize.min,
                     "batteryRebate": {
                         "amount": 0.01
                     }
@@ -331,8 +327,8 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "downPayment": 0.01,
-                    "batteryCost": projectDefault.min_loanAmount,
-                    "batterySize": projectDefault.min_batterySize
+                    "batteryCost": projectDefault.loanAmount.min,
+                    "batterySize": projectDefault.batterySize.min
                 }
             }
         },
@@ -341,8 +337,8 @@ const testCases: TestCases = {
             desc: "Low loan amount",
             projectDetails: {
                 projectData: {
-                    "batteryCost": projectDefault.min_loanAmount - 0.01,
-                    "batterySize": projectDefault.min_batterySize
+                    "batteryCost": projectDefault.loanAmount.min - 0.01,
+                    "batterySize": projectDefault.batterySize.min
                 }
             }
         },
@@ -352,7 +348,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.max_loanAmount + 0.01,
+                    "solarCost": projectDefault.loanAmount.max + 0.01,
                     "solarSize": projectDefault.someSize
                 }
             }
@@ -362,7 +358,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.max_loanAmount,
+                    "solarCost": projectDefault.loanAmount.max,
                     "solarSize": projectDefault.someSize,
                     "downPayment": 0.01
                 }
@@ -373,7 +369,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.max_loanAmount,
+                    "solarCost": projectDefault.loanAmount.max,
                     "solarSize": projectDefault.someSize,
                     "solarRebate": {
                         "amount": 0.01
@@ -386,7 +382,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "solarCost": projectDefault.max_loanAmount + 0.01,
+                    "solarCost": projectDefault.loanAmount.max + 0.01,
                     "solarSize": projectDefault.someSize,
                     "downPayment": 0.01,
                     "solarRebate": {
@@ -456,7 +452,7 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "downPayment": 0.01,
-                    "batteryCost": projectDefault.max_loanAmount_batteryOnly + 0.01,
+                    "batteryCost": projectDefault.loanAmount.maxBatteryOnly + 0.01,
                     "batterySize": projectDefault.someSize,
                     "batteryRebate": {
                         "amount": 0.01
@@ -469,7 +465,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "batteryCost": projectDefault.max_loanAmount_batteryOnly,
+                    "batteryCost": projectDefault.loanAmount.maxBatteryOnly,
                     "batterySize": projectDefault.someSize,
                     "batteryRebate": {
                         "amount": 0.01
@@ -483,7 +479,7 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     "downPayment": 0.01,
-                    "batteryCost": projectDefault.max_loanAmount_batteryOnly,
+                    "batteryCost": projectDefault.loanAmount.maxBatteryOnly,
                     "batterySize": projectDefault.someSize
                 }
             }
@@ -493,7 +489,7 @@ const testCases: TestCases = {
             desc: "High loan amount",
             projectDetails: {
                 projectData: {
-                    "batteryCost": projectDefault.max_loanAmount_batteryOnly + 0.1,
+                    "batteryCost": projectDefault.loanAmount.maxBatteryOnly + 0.1,
                     "batterySize": projectDefault.someSize
                 }
             }
@@ -505,9 +501,9 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     solarCost: projectDefault.someCost,
-                    solarSize: projectDefault.max_solarSize + 0.01,
+                    solarSize: projectDefault.solarSize.max + 0.01,
                     batteryCost: projectDefault.someCost,
-                    batterySize: projectDefault.min_batterySize - 0.01
+                    batterySize: projectDefault.batterySize.min - 0.01
                 }
             }
         },
@@ -516,10 +512,10 @@ const testCases: TestCases = {
             desc: "Invalid kW size",
             projectDetails: {
                 projectData: {
-                    solarCost: projectDefault.min_loanAmount,
-                    solarSize: projectDefault.min_solarSize,
-                    batteryCost: projectDefault.min_loanAmount,
-                    batterySize: projectDefault.max_batterySize + 0.01
+                    solarCost: projectDefault.loanAmount.min,
+                    solarSize: projectDefault.solarSize.min,
+                    batteryCost: projectDefault.loanAmount.min,
+                    batterySize: projectDefault.batterySize.max + 0.01
                 }
             }
         },
@@ -528,8 +524,8 @@ const testCases: TestCases = {
             desc: "Invalid kW size",
             projectDetails: {
                 projectData: {
-                    solarCost: projectDefault.min_loanAmount,
-                    solarSize: projectDefault.min_solarSize - 0.01
+                    solarCost: projectDefault.loanAmount.min,
+                    solarSize: projectDefault.solarSize.min - 0.01
                 }
             }
         },
@@ -539,7 +535,7 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     solarCost: projectDefault.someCost,
-                    solarSize: projectDefault.max_solarSize + 0.01,
+                    solarSize: projectDefault.solarSize.max + 0.01,
                 }
             }
         },
@@ -549,7 +545,7 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     batteryCost: projectDefault.someCost,
-                    batterySize: projectDefault.min_batterySize - 0.01
+                    batterySize: projectDefault.batterySize.min - 0.01
                 }
             }
         },
@@ -559,7 +555,7 @@ const testCases: TestCases = {
             projectDetails: {
                 projectData: {
                     batteryCost: projectDefault.someCost,
-                    batterySize: projectDefault.max_batterySize + 0.01
+                    batterySize: projectDefault.batterySize.max + 0.01
                 }
             }
         },
@@ -644,7 +640,7 @@ const testCases: TestCases = {
                     solarCost: 15000.01,
                     solarSize: 1,
                     batteryCost: 5000,
-                    batterySize: projectDefault.min_batterySize,
+                    batterySize: projectDefault.batterySize.min,
                     roofCost: 5000
                 }
             }
@@ -668,7 +664,7 @@ const testCases: TestCases = {
                     solarCost: 10000,
                     solarSize: 10.01,
                     batteryCost: 5000,
-                    batterySize: projectDefault.min_batterySize,
+                    batterySize: projectDefault.batterySize.min,
                     roofCost: 5000
                 }
             }
